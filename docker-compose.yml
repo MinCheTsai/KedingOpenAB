@@ -26,6 +26,7 @@ services:
       - GIT_COMMITTER_NAME=海綿寶寶 (SpongeBob)
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
+      - GH_TOKEN=${GH_TOKEN}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
@@ -44,6 +45,7 @@ services:
       - GIT_COMMITTER_NAME=派大星 (Patrick)
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
+      - GH_TOKEN=${GH_TOKEN}
     volumes:
       - ./agents/patrick/config.toml:/etc/openab/config.toml:ro
       - ./agents/patrick:/home/agent

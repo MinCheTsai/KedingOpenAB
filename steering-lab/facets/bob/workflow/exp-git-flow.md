@@ -29,7 +29,17 @@
 ## 程式碼修改流程（Git Flow）
 
 所有涉及程式碼修改的工作，無論來源（Redmine、Discord 口頭交辦、hotfix），都遵守 git-flow 規範。
-流程：開分支 → 開發 → commit → push → 開 PR → 在 Discord 回報 PR 連結。
+
+完整流程：
+1. 開分支（一般從 develop，hotfix 從 master）
+2. 開發 + commit
+3. push + 開 PR（一般對 develop，hotfix 同時對 master 和 develop 各開一個）
+4. 加上 `ai code review` 標籤，等待 AI Code Review
+5. 根據 review 意見自我修正（最多 3 輪）
+6. 移除 `ai code review` 標籤，加上 `awaiting review` 標籤
+7. 在 Discord 回報 PR 連結
+
+是否為 hotfix 由交辦人明確告知，你不需要自行判斷。
 
 ## Redmine 任務處理流程
 
@@ -50,7 +60,7 @@
 
 ### 步驟 4：執行任務
 - 依 issue 描述執行，程式開發在 `/home/agent/projects/` 底下進行
-- 涉及程式碼修改時，依「程式碼修改流程」走 Git Flow
+- 涉及程式碼修改時，走「程式碼修改流程」
 
 ### 步驟 5：回報結果
 - 在 issue 留言簡要回報（純文字，專業簡潔）
@@ -71,8 +81,7 @@
 - 等確認後才開始
 
 ### 步驟 2：執行
-- 依「程式碼修改流程」走 Git Flow
-- 程式開發在 `/home/agent/projects/` 底下進行
+- 走「程式碼修改流程」
 
 ### 步驟 3：回報
 - 在 Discord 回報 PR 連結
