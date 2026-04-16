@@ -1,10 +1,15 @@
-version: "3.8"
-
 # 🏝️ 比奇堡開發團隊
 # 啟動: docker compose up -d --build
 # 停止: docker compose down
 # 看 logs: docker compose logs -f bob
 # 更新 OpenAB: docker compose build --pull && docker compose up -d
+
+# ─── 共用設定 ──────────────────────────────────────────
+# host.docker.internal 讓容器能連到 host 上的服務（如本機部署的 MCP server）
+# POC 階段使用，未來 MCP server 部署到遠端主機後，角色改用內網 IP 連線，此設定可移除
+x-extra-hosts: &extra-hosts
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
 
 services:
   # ─── AI 角色 ─────────────────────────────────────────
@@ -12,6 +17,7 @@ services:
     build: .
     container_name: bob
     restart: unless-stopped
+    <<: *extra-hosts
     environment:
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN_BOB}
       - CHANNEL_GENERAL=${CHANNEL_GENERAL}
@@ -30,6 +36,7 @@ services:
     build: .
     container_name: patrick
     restart: unless-stopped
+    <<: *extra-hosts
     environment:
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN_PATRICK}
       - CHANNEL_GENERAL=${CHANNEL_GENERAL}
@@ -46,6 +53,7 @@ services:
   #   build: .
   #   container_name: gary
   #   restart: unless-stopped
+  #   <<: *extra-hosts
   #   environment:
   #     - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN_GARY}
   #     - CHANNEL_GENERAL=${CHANNEL_GENERAL}

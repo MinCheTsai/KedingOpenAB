@@ -21,8 +21,17 @@ agents/*/.kiro/settings/
 agents/*/.kiro/steering/memory.md
 
 # 舊的 steering 目錄（已搬到 agents/）
-steering-*/
+steering-old/
 
 # Python
 __pycache__/
 *.pyc
+
+# 臨時本地部署用（不進 git，正式部署由工程師依 docs/mcp-redmine-deploy.md 處理）
+tmp/
+
+# Kiro IDE workspace 層級設定（含 MCP 連線，每個環境不同）
+.kiro/settings/
+
+# 舊方案 mcp-redmine clone（已改用 redmine-mcp-server，參考 docs/mcp-redmine-setup.md）
+mcp-redmine/

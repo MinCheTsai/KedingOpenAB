@@ -1,0 +1,7 @@
+# 海綿寶寶目前使用的 steering 組合
+# 格式：<目標檔名> <- <來源 facet 路徑>
+# apply.sh 會把來源複製到 agents/bob/.kiro/steering/<目標檔名>
+
+personality.md <- bob/personality/v1-base.md
+workflow.md <- bob/workflow/v1-worklog.md
+mcp-tools.md <- shared/mcp-tools/v1-redmine.md

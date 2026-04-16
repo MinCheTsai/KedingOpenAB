@@ -1,0 +1,6 @@
+# 實驗組合：Redmine 自動任務處理 (EXP-001)
+# 變更：workflow 換成 exp-redmine-auto，mcp-tools 升級到 v2
+
+personality.md <- bob/personality/v1-base.md
+workflow.md <- bob/workflow/exp-redmine-auto.md
+mcp-tools.md <- shared/mcp-tools/v2-redmine.md
