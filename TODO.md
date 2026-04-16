@@ -216,17 +216,19 @@ Docker 容器間連線會被 `421 Invalid Host header` 擋住。
 7. **派大星的 Redmine 帳號 + MCP config** — 待派大星帳號建立後設定
 
 ### 下一個 POC：Git Flow
-8. **Git Flow SOP** — Redmine 任務涉及程式碼修改時的完整流程：
+8. **Git Flow SOP** — 所有涉及程式碼修改的完整流程（獨立於 Redmine）：
    - [x] 撰寫 Git Flow SOP 文件：`docs/git-flow-sop.md`
    - [x] 建立 git-flow steering facet：`steering-lab/facets/shared/git-flow/v1-standard.md`
    - [x] 建立整合 workflow facet：`steering-lab/facets/bob/workflow/exp-git-flow.md`
    - [x] 建立實驗組合 profile：`steering-lab/profiles/bob/exp-git-flow.txt`
    - [x] Dockerfile 加入 `gh`（GitHub CLI）
-   - [ ] 重建 image 並測試 `gh` 可用
-   - [ ] Agent 容器執行 `gh auth login`
-   - [ ] 套用 exp-git-flow 組合並測試
+   - [x] GitHub 認證改用 `GH_TOKEN` 環境變數（共用 PAT，方案 B）
+   - [ ] 人類提供 GitHub PAT，填入 `.env` 的 `GH_TOKEN`
+   - [ ] 重建 image：`docker compose build --pull`
+   - [ ] 套用 exp-git-flow 組合：`./steering-lab/apply.sh bob exp-git-flow`
+   - [ ] 重啟容器測試完整流程
 9. **Redmine + Git 整合** — Redmine issue 狀態轉換與 git flow 階段的對應關係
-   - [x] 已在 `docs/git-flow-sop.md` 第五節定義對應表
+   - [x] 已在 `docs/git-flow-sop.md` 第六節說明搭配方式
 
 ### 未來規劃
 10. **Redmine 升級 6.1 評估** — OAuth2 支援，解決多帳號需多 instance 的問題

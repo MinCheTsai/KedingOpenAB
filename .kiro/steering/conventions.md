@@ -31,7 +31,14 @@ inclusion: manual
 
 ## Git
 
-- 推送前先開分支，分支命名格式：`kiro_<YYYYMMDD>_<修改目標>`（例如 `kiro_20260415_slash-bot-usage-activity`）
-- 修改目標使用英文小寫，多個單字用 `-` 連接
-- commit message 使用繁體中文，格式：`feat/fix/chore: 簡短描述`，可附多行說明
-- 推送後到 GitHub 開 PR，不直接 push 到 master
+- 分支策略：`master`（正式）+ `develop`（開發），一般開發對 `develop` 開 PR，hotfix 同時對 `master` 和 `develop` 開 PR
+- 分支命名格式：`<角色別名>_<YYYYMMDD>_<簡短描述>`
+  - Kiro IDE：`kiro_<YYYYMMDD>_<描述>`
+  - Agent：`<別名>_<YYYYMMDD>_<描述>`（例如 `bob_20260416_fix_null_check`）
+- 簡短描述使用英文小寫，多個單字用 `_` 連接
+- commit message 使用繁體中文，格式：`feat/fix/chore/docs: 簡短描述`，可附多行說明
+- PR 標題與分支名相同
+- 不直接 push 到 master 或 develop
+- Agent 不可自行合併 PR，由主管合併
+- GitHub 認證使用共用 `GH_TOKEN`（PAT），透過環境變數注入
+- 完整流程參考 `docs/git-flow-sop.md`
