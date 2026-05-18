@@ -141,6 +141,7 @@ services:
       - CONCH_CHANNEL_ID=1505752303624392755
       - CONCH_ADMIN_IDS=${CONCH_ADMIN_IDS}
       - CONCH_OPERATOR_ROLE_IDS=${CONCH_OPERATOR_ROLE_IDS}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 

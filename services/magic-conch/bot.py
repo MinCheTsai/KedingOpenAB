@@ -1,4 +1,6 @@
 """🐚 神奇海螺 (Magic Conch) — 容器健康監控 & 生命管理 Bot"""
+import asyncio
+import json
 import logging
 import os
 import traceback
@@ -7,11 +9,19 @@ from datetime import datetime, timedelta, timezone
 import discord
 import docker
 from discord import app_commands
+from openai import AsyncOpenAI
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 TOKEN = os.environ["DISCORD_BOT_TOKEN"]
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
+
+# 限定使用的頻道（急診室）
+ALLOWED_CHANNEL_ID = os.environ.get("CONCH_CHANNEL_ID")
+
+# OpenAI for summarization
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 # 限定使用的頻道（急診室）
 ALLOWED_CHANNEL_ID = os.environ.get("CONCH_CHANNEL_ID")
@@ -74,7 +84,9 @@ def wrong_channel(interaction: discord.Interaction) -> bool:
 
 class MagicConch(discord.Client):
     def __init__(self):
-        super().__init__(intents=discord.Intents.default())
+        intents = discord.Intents.default()
+        intents.message_content = True
+        super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
 
     async def setup_hook(self):
@@ -359,6 +371,162 @@ async def heal_cmd(interaction: discord.Interaction, target: str = "", confirm: 
         except Exception as e:
             logging.error(f"/conch-heal 失敗：{e}\n{traceback.format_exc()}")
             await interaction.followup.send(f"🐚 ...治療失敗。`{e}`")
+
+
+# ─── /conch-archive ──────────────────────────────────────
+
+ARCHIVE_MAX_MESSAGES = 300  # 最多讀取的訊息數用於摘要
+SUMMARY_MODEL = "gpt-4o-mini"
+
+
+async def _fetch_thread_messages(thread: discord.Thread, limit: int = ARCHIVE_MAX_MESSAGES) -> list[discord.Message]:
+    """取得 thread 的訊息（從舊到新）。"""
+    messages = []
+    async for msg in thread.history(limit=limit, oldest_first=True):
+        messages.append(msg)
+    return messages
+
+
+async def _summarize_messages(messages: list[discord.Message]) -> str:
+    """用 OpenAI 產生對話摘要。"""
+    if not openai_client:
+        # Fallback: 取最後 20 則訊息的純文字
+        recent = messages[-20:]
+        lines = [f"{m.author.display_name}: {m.content[:100]}" for m in recent if m.content]
+        return "（無法產生 AI 摘要，以下為最近對話）\n" + "\n".join(lines)
+
+    # 準備對話內容（限制 token，取最近 100 則）
+    recent = messages[-100:]
+    conversation = "\n".join(
+        f"[{m.created_at.strftime('%m/%d %H:%M')}] {m.author.display_name}: {m.content[:200]}"
+        for m in recent if m.content
+    )
+
+    try:
+        response = await openai_client.chat.completions.create(
+            model=SUMMARY_MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "你是一個對話摘要助手。請用繁體中文總結以下 Discord 對話，包含：\n"
+                        "1. 討論主題\n"
+                        "2. 目前進度/結論\n"
+                        "3. 待辦事項或未解決的問題\n"
+                        "4. 參與者各自的立場/貢獻\n"
+                        "保持簡潔，不超過 500 字。"
+                    ),
+                },
+                {"role": "user", "content": conversation},
+            ],
+            max_tokens=800,
+            temperature=0.3,
+        )
+        return response.choices[0].message.content or "（摘要產生失敗）"
+    except Exception as e:
+        logging.error(f"OpenAI 摘要失敗：{e}")
+        # Fallback
+        recent = messages[-10:]
+        lines = [f"{m.author.display_name}: {m.content[:80]}" for m in recent if m.content]
+        return f"（AI 摘要失敗：{e}）\n最近對話：\n" + "\n".join(lines)
+
+
+def _get_bot_participants(messages: list[discord.Message]) -> set[int]:
+    """找出 thread 中所有 bot 參與者的 user ID。"""
+    bot_ids = set()
+    for msg in messages:
+        if msg.author.bot and msg.author.id != bot.user.id:  # 排除海螺自己
+            bot_ids.add(msg.author.id)
+    return bot_ids
+
+
+@bot.tree.command(name="conch-archive", description="🐚 封存當前 thread，開新 thread 延續對話")
+@app_commands.describe(reason="封存原因（選填）")
+async def archive_cmd(interaction: discord.Interaction, reason: str = "對話過長"):
+    # 這個指令不限急診室，任何 thread 都能用
+    # 但必須在 thread 裡使用
+    channel = interaction.channel
+    if not isinstance(channel, discord.Thread):
+        await interaction.response.send_message(
+            "🐚 ...這個指令只能在 thread 裡使用。", ephemeral=True
+        )
+        return
+
+    # 只有 operator 以上可以封存
+    if not is_operator(interaction):
+        await interaction.response.send_message("🐚 ...不允許。", ephemeral=True)
+        return
+
+    await interaction.response.defer()
+
+    try:
+        thread = channel
+        parent_channel = thread.parent
+
+        # Step 1: 取得訊息
+        messages = await _fetch_thread_messages(thread)
+        msg_count = len(messages)
+
+        if msg_count < 5:
+            await interaction.followup.send("🐚 ...訊息太少，不需要封存。")
+            return
+
+        # Step 2: 產生摘要
+        summary = await _summarize_messages(messages)
+
+        # Step 3: 找出所有 bot 參與者
+        bot_ids = _get_bot_participants(messages)
+        mentions_str = " ".join(f"<@{uid}>" for uid in bot_ids)
+
+        # Step 4: 在舊 thread 發結尾訊息
+        new_thread_title = f"{thread.name}（續）" if len(thread.name) < 90 else thread.name[:87] + "…（續）"
+
+        await thread.send(
+            f"📦 **此對話已封存**（{reason}，共 {msg_count} 則訊息）\n"
+            f"由 {interaction.user.mention} 執行封存。\n"
+            f"討論將延續至新 thread。"
+        )
+
+        # Step 5: 在同頻道開新 thread（發一則訊息然後建 thread）
+        # 組合新 thread 的開場訊息
+        opener_content = (
+            f"🔄 **延續討論**（封存自：{thread.name}）\n\n"
+            f"{mentions_str}\n\n"
+            f"**前情提要：**\n{summary}"
+        )
+
+        # Discord 訊息上限 2000 字
+        if len(opener_content) > 1900:
+            opener_content = opener_content[:1900] + "\n\n（摘要已截斷）"
+
+        # 在 parent channel 發訊息並建立 thread
+        new_msg = await parent_channel.send(opener_content)
+        new_thread = await new_msg.create_thread(name=new_thread_title)
+
+        # Step 6: 在新 thread 補充說明
+        await new_thread.send(
+            f"🐚 此 thread 延續自封存的對話。\n"
+            f"原 thread：https://discord.com/channels/{interaction.guild_id}/{thread.id}\n"
+            f"封存原因：{reason}\n"
+            f"原訊息數：{msg_count}"
+        )
+
+        # Step 7: 回報完成
+        await interaction.followup.send(
+            f"🐚 ...封存完畢。\n"
+            f"📦 原 thread：{msg_count} 則訊息已封存\n"
+            f"🆕 新 thread：{new_thread.mention}\n"
+            f"👥 已 mention {len(bot_ids)} 個 bot 參與者"
+        )
+
+        logging.info(
+            f"/conch-archive: {interaction.user} 封存 thread {thread.id} "
+            f"({msg_count} msgs) → 新 thread {new_thread.id}"
+        )
+
+    except Exception as e:
+        logging.error(f"/conch-archive 失敗：{e}\n{traceback.format_exc()}")
+        await interaction.followup.send(f"🐚 ...封存失敗。`{e}`")
 
 
 if __name__ == "__main__":
