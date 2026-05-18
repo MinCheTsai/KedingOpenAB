@@ -116,6 +116,28 @@ error_hold_ms = 2500
 超過 5 筆的完成紀錄在 _archive.md
 ```
 
+## 五之一、Cronjob 設定注意事項
+
+`cronjob.toml` **不支援** `${...}` 環境變數語法。channel 必須直接填入 Discord channel ID 數字字串。
+
+```toml
+# ❌ 錯誤 — cron 模組無法解析環境變數
+channel = "${CHANNEL_KRUSTY_KRAB}"
+
+# ✅ 正確 — 直接填入 channel ID
+channel = "1492090122257170526"
+```
+
+常用 Channel ID 對照（見 `.env`）：
+
+| 變數名 | Channel ID | 說明 |
+|--------|-----------|------|
+| CHANNEL_KRUSTY_KRAB | 1492090122257170526 | 蟹堡王（工作） |
+| CHANNEL_PLAZA | 1503940169252999198 | 廣場（閒聊） |
+| CHANNEL_MEETING | 1503703338800382002 | 會議室 |
+
+> 注意：`config.toml` 中的 `allowed_channels` **可以**使用 `${...}` 語法（由 OpenAB 主程式解析），但 `cronjob.toml` 由 cron 模組獨立解析，不支援環境變數。
+
 ## 六、新增 Bot 步驟
 
 1. 在 `.env` 加入 `DISCORD_BOT_TOKEN_<NAME>=...`
@@ -127,7 +149,9 @@ error_hold_ms = 2500
 7. 在 `docker-compose.yml` 加入 `- ./shared:/shared` volume
 8. 建立 `projects/` 初始結構
 9. 在 Discord 建立 Bot Application + 取得 Token
-10. 部署/重啟 OpenAB
+10. 設定 Bot 頭像（在 Discord Developer Portal → Bot → 上傳 Avatar）
+11. 更新神奇海螺的容器對應（`services/magic-conch/bot.py` 的 `ROLE_MAP` + `MANAGED_CONTAINERS`）
+12. 部署/重啟 OpenAB
 
 ## 七、角色類型對照
 
@@ -137,6 +161,22 @@ error_hold_ms = 2500
 | Reviewer（puff） | personality + workflow + review-rules + git-tools | _status.md（無專案群組） |
 | PM（squidward） | personality + workflow + mcp-tools + redmine-sop | _projects.md + 專案群組/specs |
 | 客戶成功經理（sandy） | personality + workflow | _projects.md + 實驗紀錄 |
+| 工具型 Bot（conch, gary） | 無（非 AI agent） | README.md + spec.md |
+
+## 七之一、容器名稱對應表（神奇海螺用）
+
+新增角色時，需同步更新 `services/magic-conch/bot.py` 中的 `ROLE_MAP` 和 `MANAGED_CONTAINERS`，讓神奇海螺能管理新容器。
+
+| 暱稱 | 容器名稱 | 類型 |
+|------|---------|------|
+| 海綿寶寶 / bob | bob | AI agent |
+| 派大星 / patrick | patrick | AI agent |
+| 章魚哥 / squidward | squidward | AI agent |
+| 珊迪 / sandy | sandy | AI agent |
+| 泡芙老師 / puff | puff | AI agent |
+| 小蝸 / gary | slash-bot | 工具 Bot |
+| 企微 / wecom | wecom-bot | AI agent |
+| gateway | gateway | 服務 |
 
 ## 八、共享檔案交換區
 

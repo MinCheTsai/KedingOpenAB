@@ -131,6 +131,19 @@ services:
     env_file: .env
 
   # ─── 獨立服務 ───────────────────────────────────────
+  magic-conch:
+    build: ./services/magic-conch
+    container_name: magic-conch
+    restart: always
+    environment:
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN_CONCH}
+      - DISCORD_GUILD_ID=${DISCORD_GUILD_ID}
+      - CONCH_CHANNEL_ID=1505752303624392755
+      - CONCH_ADMIN_IDS=${CONCH_ADMIN_IDS}
+      - CONCH_OPERATOR_ROLE_IDS=${CONCH_OPERATOR_ROLE_IDS}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
   slash-bot:
     build: ./services/slash-bot
     container_name: slash-bot

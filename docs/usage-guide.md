@@ -9,7 +9,7 @@
 | � 章魚哥 | 專案經理 — 需求整理、撰寫規格文件、指派任務 | `@章魚哥` |
 | 🐿️ 珊迪 | 客戶成功經理 — 實驗規劃、商業驗證、協調開發 | `@珊迪` |
 | �🐡 泡芙老師 | Code Review（自動觸發，不需手動呼叫） | — |
-| 🐌 小蝸 | 維運助手 — 系統監控、用量報告 | `/` slash command |
+| 🐌 小蝸 | Slash Command Bot — 用量查詢等工具指令 | `/` slash command |
 
 ---
 
@@ -33,7 +33,7 @@
 | 後端 API、資料庫、伺服器相關 | ⭐ 派大星 |
 | 需求模糊，需要先整理成規格再開發 | 🐙 章魚哥 |
 | 想驗證一個想法、做 POC、評估可行性 | 🐿️ 珊迪 |
-| 查系統用量、監控狀態 | 🐌 小蝸（slash command） |
+| 查系統用量、API 額度 | 🐌 小蝸（slash command） |
 
 **經驗法則：**
 - 改動明確 → 直接找工程師（海綿寶寶 / 派大星）
@@ -188,6 +188,52 @@ https://github.com/KedingTW/krusty-krab-website/pull/XX
 小蝸不是透過 @mention 呼叫，而是使用 Discord 的 `/` slash command。
 
 在聊天框輸入 `/` 就能看到可用的指令，例如查詢 Kiro API 用量報告。
+
+---
+
+## 🐚 神奇海螺（容器健康監控）
+
+神奇海螺是容器健康監控 Bot，只能在 **#急診室** 頻道使用。
+
+### 可用指令
+
+| 指令 | 功能 | 權限 |
+|------|------|------|
+| `/conch-status [target]` | 查看容器狀態（含 CPU、RAM、uptime、restart count、異常偵測） | 所有人 |
+| `/conch-logs [target] [lines]` | 查看容器近期 log | 所有人 |
+| `/conch-heal [target] [confirm]` | 重啟容器 | Operator / Admin |
+
+### target 參數
+
+可以用角色暱稱或英文名稱：
+
+| 暱稱 | 英文 | 容器 |
+|------|------|------|
+| 海綿寶寶 | bob | bob |
+| 派大星 | patrick | patrick |
+| 章魚哥 | squidward | squidward |
+| 珊迪 | sandy | sandy |
+| 泡芙老師 | puff | puff |
+| 小蝸 | gary | slash-bot |
+
+**不填 target = 查看/操作全員。**
+
+### 使用範例
+
+```
+/conch-status              ← 全員狀態（CPU、RAM、uptime）
+/conch-status bob          ← 只看海綿寶寶
+/conch-logs                ← 全員各 5 行 log
+/conch-logs patrick 30     ← 派大星最近 30 行 log
+/conch-heal sandy          ← 重啟珊迪（需 Operator 權限）
+/conch-heal confirm: yes   ← 全員重啟（需 Admin + 確認）
+```
+
+### 權限說明
+
+- **所有人**：可以查看狀態和 log
+- **Operator**（指定 role）：可以重啟單一角色
+- **Admin**（米哥）：可以全員重啟（需加 `confirm: yes`）
 
 ---
 
