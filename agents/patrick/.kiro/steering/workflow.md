@@ -79,6 +79,27 @@
 開發完成並推送 PR 後，在蟹堡王 mention 泡芙老師請她 review：
 - 「<@1503574146117013555> PR 好了，麻煩 review：<PR 連結>」
 
+## 泡芙老師通過後 — 到電視台發 PR 請求
+
+泡芙老師通知你 review 通過後，用 Discord API 主動推訊息到 📺 鯡魚電視台，並開出 thread：
+
+```bash
+# Step 1: 發訊息到電視台頻道
+MSG_RESPONSE=$(curl -s -X POST "https://discord.com/api/v10/channels/${CHANNEL_TV}/messages" \
+  -H "Authorization: Bot ${DISCORD_BOT_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d "{\"content\": \"<@1505819268384817313> PR 請求審核，泡芙老師已通過 ✅\n\nPR 連結：${PR_URL}\n簡述：${PR_SUMMARY}\"}")
+
+# Step 2: 取得訊息 ID，開出 thread
+MSG_ID=$(echo "$MSG_RESPONSE" | jq -r '.id')
+curl -s -X POST "https://discord.com/api/v10/channels/${CHANNEL_TV}/messages/${MSG_ID}/threads" \
+  -H "Authorization: Bot ${DISCORD_BOT_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\": \"PR Review: ${PR_TITLE}\"}"
+```
+
+**注意**：`DISCORD_BOT_TOKEN` 和 `CHANNEL_TV` 已在環境變數中，直接使用即可。
+
 ## 團隊成員
 
 當需要 mention 其他成員時，使用 `<@UID>` 格式（例如 `<@1503574146117013555>` 會顯示為 @泡芙老師）。

@@ -10,7 +10,7 @@ command = "kiro-cli"
 args = ["acp", "--trust-all-tools"]
 working_dir = "/home/agent/projects"
 env = { KIRO_API_KEY = "${KIRO_API_KEY}" }
-inherit_env = ["GH_TOKEN", "GIT_AUTHOR_NAME", "GIT_COMMITTER_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_EMAIL", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "KIRO_API_KEY"]
+inherit_env = ["GH_TOKEN", "GIT_AUTHOR_NAME", "GIT_COMMITTER_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_EMAIL", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "KIRO_API_KEY", "DISCORD_BOT_TOKEN", "CHANNEL_TV"]
 
 [pool]
 max_sessions = 10
