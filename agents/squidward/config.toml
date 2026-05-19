@@ -2,7 +2,7 @@
 bot_token = "${DISCORD_BOT_TOKEN}"
 allowed_channels = ["${CHANNEL_KRUSTY_KRAB}", "${CHANNEL_PLAZA}", "${CHANNEL_MEETING}", "${CHANNEL_REPORT}"]
 allow_bot_messages = "mentions"
-allow_user_messages = "multibot-mentions"
+allow_user_messages = "mentions"
 max_bot_turns = 100
 
 [agent]
