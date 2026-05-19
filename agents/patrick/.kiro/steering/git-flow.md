@@ -44,47 +44,16 @@ git checkout -b <分支名稱>
 
 ### push 並開 PR
 
-PR body 開頭必須包含 `[bot-meta]` 區塊，提供 CI 通知所需的 Discord 資訊：
-```
-[bot-meta]
-discord: <當前討論串ID>
-user: <交辦人的Discord UID>
-bot: <你自己的Discord UID>
-
-說明修改內容和原因...
-```
-- `discord`：你目前所在的 Discord channel/thread ID
-- `user`：交辦這個任務給你的人的 Discord user ID
-- `bot`：你自己的 Discord user ID
-- `[bot-meta]` 區塊和正文之間用一個空行隔開
-- 這些資訊用於 AI Code Review 完成後，CI 自動通知到正確的 Discord 討論串
-
-一般：
 ```bash
 git push origin <分支名稱>
-gh pr create --base develop --title "<分支名稱>" --body "[bot-meta]
-discord: <討論串ID>
-user: <交辦人UID>
-bot: <你的UID>
-
-說明修改內容和原因"
+gh pr create --base develop --title "<分支名稱>" --body "說明修改內容和原因"
 ```
 
 hotfix（開兩個 PR）：
 ```bash
 git push origin <分支名稱>
-gh pr create --base master --title "<分支名稱>" --body "[bot-meta]
-discord: <討論串ID>
-user: <交辦人UID>
-bot: <你的UID>
-
-hotfix: 說明修改內容和原因"
-gh pr create --base develop --title "<分支名稱>" --body "[bot-meta]
-discord: <討論串ID>
-user: <交辦人UID>
-bot: <你的UID>
-
-hotfix: 說明修改內容和原因"
+gh pr create --base master --title "<分支名稱>" --body "hotfix: 說明修改內容和原因"
+gh pr create --base develop --title "<分支名稱>" --body "hotfix: 說明修改內容和原因"
 ```
 
 ## 五、Code Review 流程（泡芙老師）
@@ -98,7 +67,7 @@ hotfix: 說明修改內容和原因"
 4. 修正完成後，再次 mention 泡芙老師請求再次審閱：
    `<@1503574146117013555> 已修正，請再次審閱 PR #XX：<PR連結>`
 5. 最多進行 3 輪修正
-6. 泡芙老師通過後會 mention 交辦人，你不需要自行切換標籤
+6. 泡芙老師通過後會直接 mention 人類審核者（詠仁/潔庭/珈瑄），你不需要做任何事
 7. 如果 3 輪後仍有未解決的意見，泡芙老師會 mention 交辦人決定後續處理
 8. hotfix 的兩個 PR 都要走這個流程
 

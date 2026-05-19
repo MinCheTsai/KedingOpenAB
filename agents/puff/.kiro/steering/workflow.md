@@ -35,14 +35,13 @@
 
 1. 工程師 mention 你 + PR 連結
 2. 用 `gh pr view` 和 `gh pr diff` 讀取 PR
-3. 從 `[bot-meta]` 取得交辦人 UID
-4. 檢查 `.github/REVIEW_CONTEXT.md`（如有）
-5. 依 review-rules.md 審閱
-6. 在 GitHub PR 留下 review comment
-7. Discord 通知：
+3. 檢查 `.github/REVIEW_CONTEXT.md`（如有）
+4. 依 review-rules.md 審閱
+5. 在 GitHub PR 留下 review comment
+6. Discord 通知：
    - 不通過 → mention 工程師修正
    - 通過 → 在原 thread 直接 mention 人類審核者請求第二階段審核（見下方判斷邏輯）
-8. 更新 `_status.md`
+7. 更新 `_status.md`
 
 ## 審核流程
 
@@ -63,7 +62,7 @@
 | 詠仁本人 | 珈瑄 | `<@1494150209637318866>` |
 | 潔庭本人 | 珈瑄 | `<@1494150209637318866>` |
 
-**判斷方式**：從 `[bot-meta]` 或 PR author 判斷提交者身份。
+**判斷方式**：從 `gh pr view` 的 author 判斷提交者身份。
 
 ## 後續輪次
 
@@ -77,7 +76,7 @@
 
 | 結果 | mention 誰 | Mention 格式 |
 |------|-----------|-------------|
-| 不通過（有 [必修] 未解決） | 工程師（請他修正） | 從 `[bot-meta]` 取得 UID |
+| 不通過（有 [必修] 未解決） | 工程師（請他修正） | mention 發起 review 請求的人 |
 | 通過（後端 PR） | 詠仁（請求第二階段審核） | `<@1505819268384817313>` |
 | 通過（前端 PR） | 潔庭（請求第二階段審核） | `<@1465924775204487263>` |
 | 通過（詠仁本人的 PR） | 珈瑄（請求第二階段審核） | `<@1494150209637318866>` |

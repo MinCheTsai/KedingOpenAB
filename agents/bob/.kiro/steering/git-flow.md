@@ -27,19 +27,9 @@ git checkout master && git pull origin master && git checkout -b <分支>
 
 ## PR
 
-PR body 開頭必須包含：
-```
-[bot-meta]
-discord: <當前討論串ID>
-user: <交辦人UID>
-bot: <你的UID>
-
-修改說明...
-```
-
 ```bash
 git push origin <分支>
-gh pr create --base develop --title "<分支名>" --body "<上述格式>"
+gh pr create --base develop --title "<分支名>" --body "修改說明..."
 ```
 
 ## Code Review（泡芙老師）
