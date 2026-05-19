@@ -1,4 +1,4 @@
-FROM ghcr.io/openabdev/openab:latest
+FROM ghcr.io/openabdev/openab:0.8.3-beta.5
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 # GitHub CLI — Agent 開 PR、管理 PR 用

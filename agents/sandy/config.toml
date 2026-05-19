@@ -3,6 +3,7 @@ bot_token = "${DISCORD_BOT_TOKEN}"
 allowed_channels = ["1492090122257170526", "1503940169252999198", "1503703338800382002", "1503704375074361424"]
 allow_bot_messages = "mentions"
 allow_user_messages = "mentions"
+allowed_role_ids = ["1504289434122588200", "1506122390751678484", "1504348022803402835", "1506130693812391946"]
 max_bot_turns = 100
 
 [agent]

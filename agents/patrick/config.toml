@@ -3,6 +3,7 @@ bot_token = "${DISCORD_BOT_TOKEN}"
 allowed_channels = ["${CHANNEL_KRUSTY_KRAB}", "${CHANNEL_PLAZA}", "${CHANNEL_LAB}", "${CHANNEL_TV}"]
 allow_bot_messages = "mentions"
 allow_user_messages = "mentions"
+allowed_role_ids = ["1504289434122588200", "1506122390751678484", "1496024872222986313"]
 max_bot_turns = 100
 
 [agent]
