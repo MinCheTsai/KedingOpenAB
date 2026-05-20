@@ -30,6 +30,9 @@ __pycache__/
 # 臨時本地部署用（不進 git，正式部署由工程師依 docs/mcp-redmine-deploy.md 處理）
 tmp/
 
+# 本地工具腳本（含機器特定路徑）
+scripts/*.bat
+
 # Kiro IDE workspace 層級設定（含 MCP 連線，每個環境不同）
 .kiro/settings/
 

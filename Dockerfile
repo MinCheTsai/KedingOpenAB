@@ -14,5 +14,8 @@ COPY scripts/link-shared-steering.sh /usr/local/bin/link-shared-steering.sh
 COPY scripts/entrypoint-wrapper.sh /usr/local/bin/entrypoint-wrapper.sh
 RUN chmod +x /usr/local/bin/link-shared-steering.sh /usr/local/bin/entrypoint-wrapper.sh
 
-USER agent
+# 預建 /nas 目錄
+RUN mkdir -p /nas
+
+# 以 root 啟動，entrypoint 建完 symlink 後降權為 agent
 ENTRYPOINT ["/usr/local/bin/entrypoint-wrapper.sh"]

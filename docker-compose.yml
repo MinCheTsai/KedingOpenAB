@@ -25,10 +25,12 @@ services:
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
       - RUST_LOG=openab=debug
+      - AGENT_NAME=bob
     volumes:
       - ./agents/bob/config.toml:/etc/openab/config.toml:ro
       - ./agents/bob:/home/agent
-      - ./shared:/shared
+      - nas:/nas
+      - ./shared/steering:/opt/steering:ro
 
   patrick:
     build: .
@@ -43,10 +45,12 @@ services:
       - GIT_COMMITTER_NAME=派大星 (Patrick)
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
+      - AGENT_NAME=patrick
     volumes:
       - ./agents/patrick/config.toml:/etc/openab/config.toml:ro
       - ./agents/patrick:/home/agent
-      - ./shared:/shared
+      - nas:/nas
+      - ./shared/steering:/opt/steering:ro
 
   puff:
     build: .
@@ -61,10 +65,12 @@ services:
       - GIT_COMMITTER_NAME=泡芙老師 (Mrs. Puff)
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
+      - AGENT_NAME=puff
     volumes:
       - ./agents/puff/config.toml:/etc/openab/config.toml:ro
       - ./agents/puff:/home/agent
-      - ./shared:/shared
+      - nas:/nas
+      - ./shared/steering:/opt/steering:ro
 
   squidward:
     build: .
@@ -79,10 +85,12 @@ services:
       - GIT_COMMITTER_NAME=章魚哥 (Squidward)
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
+      - AGENT_NAME=squidward
     volumes:
       - ./agents/squidward/config.toml:/etc/openab/config.toml:ro
       - ./agents/squidward:/home/agent
-      - ./shared:/shared
+      - nas:/nas
+      - ./shared/steering:/opt/steering:ro
 
   sandy:
     build: .
@@ -98,10 +106,12 @@ services:
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
       - RUST_LOG=openab=debug
+      - AGENT_NAME=sandy
     volumes:
       - ./agents/sandy/config.toml:/etc/openab/config.toml:ro
       - ./agents/sandy:/home/agent
-      - ./shared:/shared
+      - nas:/nas
+      - ./shared/steering:/opt/steering:ro
 
   # ─── WeCom Bot（透過 Gateway 連接企業微信）─────────────
   wecom-bot:
@@ -157,3 +167,12 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=us-east-1
+
+# ─── NAS CIFS Volume（單一連線，掛載 88.BikiniBottom 根目錄）───
+volumes:
+  nas:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "addr=192.168.1.218,username=${NAS_USER},password=${NAS_PASSWORD},file_mode=0777,dir_mode=0777,vers=3.0,iocharset=utf8"
+      device: "//192.168.1.218/KD共用/18_各部門共享區/21_系統開發課/88.BikiniBottom"

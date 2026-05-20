@@ -1,13 +1,20 @@
 # 📦 共享檔案交換區
 
 掛載路徑：容器內 `/shared`
+實際位置：NAS `\\192.168.1.218\KD共用\18_各部門共享區\21_系統開發課\88.BikiniBottom\shared`
 
 ## 結構
 
 ```
 /shared/
-├── README.md       # 本說明（唯讀參考）
-└── drop/           # 檔案交換區（扁平，每日清空）
+├── README.md       # 本說明
+├── steering/       # 共用 steering 規範（從本地 repo 覆蓋，唯讀）
+├── drop/           # 檔案交換區（扁平，每日清空）
+├── docs/           # 共用文件
+├── reports/        # 報告產出
+├── archive/        # 歸檔
+├── inbox/          # 收件匣
+└── workspace/      # 共用工作區
 ```
 
 ## 規則
@@ -20,9 +27,7 @@
 
 範例：
 - `bob_api-spec_v1.md`
-- `bob_api-spec_v2.md`（修改後重新放入）
 - `sandy_analysis-report_v1.pdf`
-- `squidward_sprint-plan_v3.md`
 
 ### 版本控制
 
@@ -38,9 +43,6 @@
 
 ### 清理機制
 
-- 每日自動清空 `/shared/drop/` 內所有檔案
+- `/shared/drop/` 內的檔案定期清理
 - 重要檔案請自行備份到自己的工作目錄，不要只存在這裡
 - 這裡是「交換」用，不是「儲存」用
-
-<!-- TODO: 設定 cron job 每日清空 /shared/drop/（保留 .gitkeep） -->
-<!-- 建議指令: find /path/to/shared/drop -type f ! -name '.gitkeep' -delete -->

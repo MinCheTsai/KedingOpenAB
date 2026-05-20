@@ -1,26 +1,27 @@
 #!/bin/bash
-# 在容器啟動時，將 /shared/steering/ 的共用文件 symlink 到 agent 的 steering 目錄
-# 用法：由 docker-compose entrypoint 呼叫，或手動執行
+# Link shared steering files to agent's .kiro/steering directory
 
-SHARED_DIR="/shared/steering"
-STEERING_DIR="/home/agent/.kiro/steering"
-
-if [ ! -d "$SHARED_DIR" ]; then
-    echo "[link-shared-steering] $SHARED_DIR not found, skipping"
+# Try /opt/steering first (local bind mount), fallback to /shared/steering (NAS)
+if [ -d "/opt/steering" ]; then
+    SHARED_DIR="/opt/steering"
+elif [ -d "/shared/steering" ]; then
+    SHARED_DIR="/shared/steering"
+else
+    echo "[link-shared-steering] no steering source found, skipping"
     exit 0
 fi
 
+STEERING_DIR="/home/agent/.kiro/steering"
 mkdir -p "$STEERING_DIR"
 
 for file in "$SHARED_DIR"/*.md; do
     [ -f "$file" ] || continue
     filename=$(basename "$file")
     target="$STEERING_DIR/$filename"
-    # 如果已存在且不是 symlink，先備份
     if [ -f "$target" ] && [ ! -L "$target" ]; then
         mv "$target" "$target.bak"
     fi
     ln -sf "$file" "$target"
 done
 
-echo "[link-shared-steering] done: $(ls "$SHARED_DIR"/*.md 2>/dev/null | wc -l) files linked"
+echo "[link-shared-steering] done: $(ls "$SHARED_DIR"/*.md 2>/dev/null | wc -l) files linked from $SHARED_DIR"
