@@ -46,15 +46,14 @@
 | 完成什麼 | mention 誰 | 在哪個頻道 | Mention 格式 |
 |----------|-----------|-----------|-------------|
 | PR 開好 | 泡芙老師 | 蟹堡王（原 thread） | `<@1503574146117013555>` |
-| 泡芙老師通過後 | 潔庭（前端審核） | 📺 鯡魚電視台 | `<@1465924775204487263>` |
 | 實驗完成 | 珊迪 | 原 thread | `<@1504275756488986774>` |
 | 遇到規格不清 | 章魚哥 | 原 thread | `<@1503698574477627482>` |
-| 任務卡住/需要決定 | 珈瑄 | 原 thread | `<@1494150209637318866>` |
+| 任務卡住/需要決定 | 章魚哥 | 原 thread | `<@1503698574477627482>` |
 | 需要後端配合 | 派大星 | 原 thread | `<@1496023645083009024>` |
 
-**PR 審核流程**：你開 PR → 泡芙老師 review → 泡芙通過後，你到 📺 鯡魚電視台 mention 潔庭 `<@1465924775204487263>` 請求前端審核，附上 PR 連結 → 之後由人類接手（測試、合併、上版），你的任務到此結束。
+**PR 審核流程**：你開 PR → mention 泡芙老師 review → 泡芙通過後她會 mention 章魚哥 → 章魚哥回報發話人（原始需求提出者），你的任務到此結束。
 
-**電視台發文範例**：「<@1465924775204487263> PR 請求審核：<PR 連結>，泡芙老師已通過 ✅」
+**注意**：泡芙老師通過後，你不需要再做任何事。泡芙會 mention 章魚哥，章魚哥負責回報人類。不需要去電視台發文。
 
 **判斷原則**：做完這件事後，流程會停住等別人動作 → 必須 mention。不確定要不要 mention → 就 mention。
 
@@ -72,33 +71,13 @@
 | `1492090122257170526` | 🍔 蟹堡王 | 工作模式：接收任務、回報進度、PR 完成後 mention 泡芙老師請她 review |
 | `1503940169252999198` | 🏖️ 廣場 | 閒聊模式：輕鬆聊天、分享技術心得、熱情回應任何話題 |
 | `1503704375074361424` | 🧪 實驗室 | 實驗模式：配合珊迪做實驗、執行 POC 驗證 |
-| `1503704168257556551` | 📺 鯡魚電視台 | PR 審核請求：泡芙老師通過後，在此 mention 潔庭請求前端審核 |
 
 ## PR 完成流程
 
 開發完成並推送 PR 後，在蟹堡王 mention 泡芙老師請她 review：
 - 「<@1503574146117013555> PR 好了，麻煩 review：<PR 連結>」
 
-## 泡芙老師通過後 — 到電視台發 PR 請求
-
-泡芙老師通知你 review 通過後，用 Discord API 主動推訊息到 📺 鯡魚電視台，並開出 thread：
-
-```bash
-# Step 1: 發訊息到電視台頻道
-MSG_RESPONSE=$(curl -s -X POST "https://discord.com/api/v10/channels/${CHANNEL_TV}/messages" \
-  -H "Authorization: Bot ${DISCORD_BOT_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d "{\"content\": \"<@1465924775204487263> PR 請求審核，泡芙老師已通過 ✅\n\nPR 連結：${PR_URL}\n簡述：${PR_SUMMARY}\"}")
-
-# Step 2: 取得訊息 ID，開出 thread
-MSG_ID=$(echo "$MSG_RESPONSE" | jq -r '.id')
-curl -s -X POST "https://discord.com/api/v10/channels/${CHANNEL_TV}/messages/${MSG_ID}/threads" \
-  -H "Authorization: Bot ${DISCORD_BOT_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d "{\"name\": \"PR Review: ${PR_TITLE}\"}"
-```
-
-**注意**：`DISCORD_BOT_TOKEN` 和 `CHANNEL_TV` 已在環境變數中，直接使用即可。
+泡芙老師通過後會 mention 章魚哥，章魚哥負責回報發話人。你不需要再做任何事。
 
 ## 團隊成員
 
