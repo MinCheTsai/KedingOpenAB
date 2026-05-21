@@ -16,5 +16,8 @@ fi
 # --- Shared steering symlink (as agent) ---
 su -s /bin/bash agent -c "/usr/local/bin/link-shared-steering.sh"
 
+# --- Shared skills symlink (as agent) ---
+su -s /bin/bash agent -c "/usr/local/bin/link-shared-skills.sh"
+
 # --- Drop privileges and start OpenAB ---
 exec setpriv --reuid=agent --regid=agent --init-groups openab "$@"

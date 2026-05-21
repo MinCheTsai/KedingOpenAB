@@ -26,11 +26,13 @@ services:
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
       - RUST_LOG=openab=debug
       - AGENT_NAME=bob
+      - AGENT_SKILLS=xlsx,pdf,pptx,docx,doc-coauthoring
     volumes:
       - ./agents/bob/config.toml:/etc/openab/config.toml:ro
       - ./agents/bob:/home/agent
       - nas:/nas
       - ./shared/steering:/opt/steering:ro
+      - ./shared/skills:/opt/skills:ro
 
   patrick:
     build: .
@@ -46,11 +48,13 @@ services:
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
       - AGENT_NAME=patrick
+      - AGENT_SKILLS=xlsx,pdf,pptx,docx,doc-coauthoring
     volumes:
       - ./agents/patrick/config.toml:/etc/openab/config.toml:ro
       - ./agents/patrick:/home/agent
       - nas:/nas
       - ./shared/steering:/opt/steering:ro
+      - ./shared/skills:/opt/skills:ro
 
   puff:
     build: .
@@ -66,11 +70,13 @@ services:
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
       - AGENT_NAME=puff
+      - AGENT_SKILLS=xlsx,pdf,pptx,docx,doc-coauthoring
     volumes:
       - ./agents/puff/config.toml:/etc/openab/config.toml:ro
       - ./agents/puff:/home/agent
       - nas:/nas
       - ./shared/steering:/opt/steering:ro
+      - ./shared/skills:/opt/skills:ro
 
   squidward:
     build: .
@@ -86,11 +92,13 @@ services:
       - GIT_AUTHOR_EMAIL=${GIT_EMAIL}
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
       - AGENT_NAME=squidward
+      - AGENT_SKILLS=xlsx,pdf,pptx,docx,doc-coauthoring
     volumes:
       - ./agents/squidward/config.toml:/etc/openab/config.toml:ro
       - ./agents/squidward:/home/agent
       - nas:/nas
       - ./shared/steering:/opt/steering:ro
+      - ./shared/skills:/opt/skills:ro
 
   sandy:
     build: .
@@ -107,11 +115,13 @@ services:
       - GIT_COMMITTER_EMAIL=${GIT_EMAIL}
       - RUST_LOG=openab=debug
       - AGENT_NAME=sandy
+      - AGENT_SKILLS=xlsx,pdf,pptx,docx,doc-coauthoring
     volumes:
       - ./agents/sandy/config.toml:/etc/openab/config.toml:ro
       - ./agents/sandy:/home/agent
       - nas:/nas
       - ./shared/steering:/opt/steering:ro
+      - ./shared/skills:/opt/skills:ro
 
   # ─── WeCom Bot（透過 Gateway 連接企業微信）─────────────
   wecom-bot:

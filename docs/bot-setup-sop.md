@@ -7,14 +7,17 @@ agents/<bot-name>/
 ├── config.toml                    # Bot 啟動設定
 ├── .gitconfig                     # Git 身份
 ├── .kiro/
-│   └── steering/                  # Steering 檔案（精簡為原則）
-│       ├── personality.md         # 角色設定 + 工作環境（≤30 行）
-│       ├── workflow.md            # 工作流程（≤40 行）
-│       ├── git-flow.md            # Git 規範（開發者角色才需要）
-│       ├── mcp-tools.md           # MCP 工具（有用到才加）
-│       └── redmine-sop.md         # Redmine 規範（有用到才加）
-│       # 以下為共用 steering（容器啟動時自動 symlink 自 /shared/steering/）
-│       # rules.md, team-members.md, shared-drive.md, channel-handoff.md
+│   ├── steering/                  # Steering 檔案（精簡為原則）
+│   │   ├── personality.md         # 角色設定 + 工作環境（≤30 行）
+│   │   ├── workflow.md            # 工作流程（≤40 行）
+│   │   ├── git-flow.md            # Git 規範（開發者角色才需要）
+│   │   ├── mcp-tools.md           # MCP 工具（有用到才加）
+│   │   └── redmine-sop.md         # Redmine 規範（有用到才加）
+│   │   # 以下為共用 steering（容器啟動時自動 symlink 自 /shared/steering/）
+│   │   # rules.md, team-members.md, shared-drive.md, channel-handoff.md
+│   └── skills/                    # Skills（容器啟動時自動 symlink 自 /shared/skills/）
+│       └── <skill-name>/          # 由 AGENT_SKILLS 環境變數控制
+│           └── SKILL.md
 └── projects/                      # 工作目錄
     ├── _projects.md               # 專案對應表（開發者角色）
     │                              # 或 _status.md（非專案角色如泡芙）
@@ -108,7 +111,67 @@ usercron_path = "cronjob.toml"
 
 身分組必須在 Discord 伺服器設定中開啟「允許任何人 @mention 這個身分組」，否則 Discord 不會在訊息中帶上 `mention_roles`，OpenAB 就收不到。
 
-## 三、共用 Steering 機制
+## 三、共用 Skills 機制
+
+共用 skills 放在 `shared/skills/`，容器啟動時由 `link-shared-skills.sh` 根據 `AGENT_SKILLS` 環境變數 symlink 到 `/home/agent/.kiro/skills/`。
+
+### Skill 結構
+
+```
+shared/skills/
+└── <skill-name>/
+    ├── SKILL.md           # 必要，遵循 agentskills.io 標準
+    └── references/        # 選用，進階參考文件
+        └── *.md
+```
+
+### SKILL.md 格式
+
+```yaml
+---
+name: <skill-name>        # 必須與資料夾名稱一致，小寫 + 連字號
+description: <描述>        # Kiro 用來判斷何時啟用（最多 1024 字元）
+---
+
+# 指引內容...
+```
+
+### 指定角色使用 Skill
+
+在 `docker-compose.yml` 的角色 `environment` 區塊加入：
+
+```yaml
+- AGENT_SKILLS=xlsx,pr-review   # 逗號分隔，只 link 列出的 skill
+```
+
+不設 `AGENT_SKILLS` 的角色不會載入任何 skill。
+
+### 目前可用 Skills
+
+| Skill 名稱 | 用途 | 使用角色 |
+|------------|------|---------|
+| `xlsx` | 用 Python openpyxl 生成 Excel 表格 | 全員 |
+| `pdf` | PDF 讀取、合併、分割、建立、表單填寫 | 全員 |
+| `pptx` | 建立和編輯 PowerPoint 簡報 | 全員 |
+| `docx` | 建立和編輯 Word 文件 | 全員 |
+| `doc-coauthoring` | 結構化文件共同撰寫流程（規格書、提案） | 全員 |
+
+### 新增 Skill 步驟
+
+1. 在 `shared/skills/<name>/` 建立 `SKILL.md`（含 frontmatter）
+2. 如有進階文件放 `references/` 子目錄
+3. 在目標角色的 `docker-compose.yml` 加入 `AGENT_SKILLS=<name>`
+4. 重啟容器：`docker compose up -d --build <agent>`
+5. 更新本表
+
+### 注意事項
+
+- Skill 的 `name` 欄位必須跟資料夾名稱完全一致
+- `description` 要寫得精確，Kiro 靠它判斷何時自動啟用
+- 所有角色的 volumes 都已掛載 `./shared/skills:/opt/skills:ro`
+- Python 套件依賴（如 openpyxl）需在 Dockerfile 中安裝
+
+## 四、共用 Steering 機制
 
 共用 steering 文件放在 `shared/steering/`，容器啟動時由 `entrypoint-wrapper.sh` 自動 symlink 到 `/home/agent/.kiro/steering/`。
 
@@ -212,7 +275,7 @@ channel = "1492090122257170526"
 | CHANNEL_PLAZA | 1503940169252999198 | 廣場（閒聊） |
 | CHANNEL_MEETING | 1503703338800382002 | 會議室 |
 
-## 八、新增 Bot 步驟
+## 九、新增 Bot 步驟
 
 1. 在 Discord Developer Portal 建立 Bot Application + 取得 Token
 2. 在 Discord 伺服器建立該 bot 的個人身分組，並加入相關群組身分組
@@ -221,13 +284,14 @@ channel = "1492090122257170526"
 5. 建立 `agents/<bot-name>/` 目錄結構（參考第一節）
 6. 撰寫 `config.toml`（參考第二節模板，設定 `allowed_role_ids`）
 7. 撰寫 `.gitconfig`
-8. 撰寫 steering 檔案（遵守第四節預算，personality.md 必須含時區）
-9. 在 `docker-compose.yml` 加入服務定義（含 `- ./shared:/shared` volume）
-10. 建立 `projects/` 初始結構
-11. 設定 Bot 頭像（在 Discord Developer Portal → Bot → 上傳 Avatar）
-12. 更新 `shared/steering/team-members.md`（加入新成員）
-13. 更新神奇海螺的容器對應（`services/magic-conch/bot.py` 的 `ROLE_MAP` + `MANAGED_CONTAINERS`）
-14. `docker compose build --pull && docker compose up -d`
+8. 撰寫 steering 檔案（遵守第五節預算，personality.md 必須含時區）
+9. 在 `docker-compose.yml` 加入服務定義（含 skills volume）
+10. 如需 skills，加入 `AGENT_SKILLS=<skill1>,<skill2>` 環境變數
+11. 建立 `projects/` 初始結構
+12. 設定 Bot 頭像（在 Discord Developer Portal → Bot → 上傳 Avatar）
+13. 更新 `shared/steering/team-members.md`（加入新成員）
+14. 更新神奇海螺的容器對應（`services/magic-conch/bot.py` 的 `ROLE_MAP` + `MANAGED_CONTAINERS`）
+15. `docker compose build --pull && docker compose up -d`
 
 ## 九、角色類型對照
 
@@ -262,6 +326,7 @@ channel = "1492090122257170526"
 ```
 /shared/
 ├── steering/    # 共用 steering 文件（自動 symlink 到各 bot）
+├── skills/      # 共用 skills（由 AGENT_SKILLS 控制 symlink）
 ├── docs/        # 共用流程文件
 └── drop/        # 扁平交換區，每日自動清空
 ```
